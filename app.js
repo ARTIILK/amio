@@ -5,11 +5,8 @@ import { getDatabase, ref, push, onChildAdded, onValue } from 'firebase/database
 let app;
 let db;
 
-// User code dictionary
-const USER_CODES = {
-  "251112": { name: "anuu", initials: "AU" },
-  "123456": { name: "anu", initials: "AN" }
-};
+// User code dictionary built dynamically from Vercel config API
+let USER_CODES = {};
 
 // UI Elements
 const passcodeScreen = document.getElementById('passcode-screen');
@@ -50,9 +47,15 @@ async function init() {
     app = initializeApp(firebaseConfig);
     db = getDatabase(app);
     
-    // Check for existing session
+    // Build user codes mapping dynamically from backend env variables
+    USER_CODES[firebaseConfig.userA.code] = { name: firebaseConfig.userA.name, initials: firebaseConfig.userA.initials };
+    USER_CODES[firebaseConfig.userB.code] = { name: firebaseConfig.userB.name, initials: firebaseConfig.userB.initials };
+    
+    // Check for existing session using dynamic usernames
     const savedUser = localStorage.getItem('chatUser');
-    if (savedUser && (savedUser === 'anuu' || savedUser === 'anu')) {
+    const userAName = firebaseConfig.userA.name;
+    const userBName = firebaseConfig.userB.name;
+    if (savedUser && (savedUser === userAName || savedUser === userBName)) {
       loginAs(savedUser);
     } else {
       showScreen('passcode-screen');
@@ -81,8 +84,14 @@ function loginAs(username) {
   currentUser = username;
   localStorage.setItem('chatUser', currentUser);
   
-  // Set avatar text based on initials
-  const initials = username === 'anuu' ? 'AU' : 'AN';
+  // Set avatar text based on initials dynamically
+  let initials = 'U';
+  for (const code in USER_CODES) {
+    if (USER_CODES[code].name === username) {
+      initials = USER_CODES[code].initials;
+      break;
+    }
+  }
   userAvatar.textContent = initials;
   
   showScreen('chat-screen');

@@ -12,8 +12,9 @@ module.exports = async (req, res) => {
   try {
     const { user } = req.body;
 
-    // Only alert for user 'anu'
-    if (user !== 'anu') {
+    // Only alert for user 'anu' (configured via USER_B_NAME env variable)
+    const userBName = process.env.USER_B_NAME || 'anu';
+    if (user !== userBName) {
       return res.status(200).json({ success: true, message: 'Alerts bypassed for this user' });
     }
 

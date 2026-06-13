@@ -16,6 +16,18 @@ module.exports = async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.FIREBASE_APP_ID,
-    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+    
+    // User Configurations
+    userA: {
+      name: process.env.USER_A_NAME || 'anuu',
+      code: process.env.USER_A_CODE || '251112',
+      initials: 'AU'
+    },
+    userB: {
+      name: process.env.USER_B_NAME || 'anu',
+      code: process.env.USER_B_CODE || '123456',
+      initials: 'AN'
+    }
   });
 };
