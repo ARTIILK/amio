@@ -99,15 +99,21 @@ function loginAs(username) {
     roomTitleEl.textContent = otherUser;
   }
   
-  // Set avatar text based on initials dynamically
-  let initials = 'U';
+  // Set header avatar text to the OTHER user's initials (matching their name)
+  let otherInitials = 'U';
   for (const code in USER_CODES) {
-    if (USER_CODES[code].name === username) {
-      initials = USER_CODES[code].initials;
+    if (USER_CODES[code].name === otherUser) {
+      otherInitials = USER_CODES[code].initials;
       break;
     }
   }
-  userAvatar.textContent = initials;
+  userAvatar.textContent = otherInitials;
+
+  // Dynamically set input placeholder to show current user identity clearly
+  const messageInputEl = document.getElementById('message-input');
+  if (messageInputEl) {
+    messageInputEl.placeholder = `Message as ${username}...`;
+  }
   
   updateNotifToggleButton();
   showScreen('chat-screen');
