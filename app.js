@@ -1,21 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push, onChildAdded, onValue } from 'firebase/database';
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyC9ZUBkP2EIYDTPAHVN7QtvwH8XFsni8zc",
-  authDomain: "gen-lang-client-0946145742.firebaseapp.com",
-  databaseURL: "https://gen-lang-client-0946145742-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "gen-lang-client-0946145742",
-  storageBucket: "gen-lang-client-0946145742.firebasestorage.app",
-  messagingSenderId: "66028986363",
-  appId: "1:66028986363:web:2a6bee898748756d14355e",
-  measurementId: "G-XMCW5FS4BS"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// Declare Firebase variables (loaded dynamically from serverless config)
+let app;
+let db;
 
 // User code dictionary
 const USER_CODES = {
@@ -53,17 +41,30 @@ let lastMessageSender = '';
 let lastMessageTimestamp = 0;
 let toastTimeout = null;
 
-function init() {
-  // Check for existing session
-  const savedUser = localStorage.getItem('chatUser');
-  if (savedUser && (savedUser === 'anuu' || savedUser === 'anu')) {
-    loginAs(savedUser);
-  } else {
-    showScreen('passcode-screen');
-    setTimeout(() => passcodeInput.focus(), 400);
+async function init() {
+  try {
+    // Fetch configuration dynamically from Vercel Serverless API
+    const configRes = await fetch('/api/config');
+    const firebaseConfig = await configRes.json();
+    
+    app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+    
+    // Check for existing session
+    const savedUser = localStorage.getItem('chatUser');
+    if (savedUser && (savedUser === 'anuu' || savedUser === 'anu')) {
+      loginAs(savedUser);
+    } else {
+      showScreen('passcode-screen');
+      setTimeout(() => passcodeInput.focus(), 400);
+    }
+    setupAuthEvents();
+    setupChatEvents();
+  } catch (err) {
+    console.error("Configuration load failed: ", err);
+    statusText.textContent = "Config Error";
+    connectionStatus.className = "connection-status disconnected";
   }
-  setupAuthEvents();
-  setupChatEvents();
 }
 
 function showScreen(screenId) {
