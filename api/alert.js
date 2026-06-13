@@ -18,15 +18,15 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true, message: 'Alerts bypassed for this user' });
     }
 
-    // Load credentials from environment variables
-    const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
-    const telegramChatId = process.env.TELEGRAM_CHAT_ID;
-    const googleMailUser = process.env.GOOGLE_MAIL_USER;
-    const googleMailPass = process.env.GOOGLE_MAIL_PASS;
-    const emailTo = process.env.EMAIL_TO || googleMailUser; // Send to Gmail user if not specified
+    // Load credentials from environment variables (stripping quotes if present)
+    const telegramToken = process.env.TELEGRAM_BOT_TOKEN ? process.env.TELEGRAM_BOT_TOKEN.replace(/^["']|["']$/g, '') : undefined;
+    const telegramChatId = process.env.TELEGRAM_CHAT_ID ? process.env.TELEGRAM_CHAT_ID.replace(/^["']|["']$/g, '') : undefined;
+    const googleMailUser = process.env.GOOGLE_MAIL_USER ? process.env.GOOGLE_MAIL_USER.replace(/^["']|["']$/g, '') : undefined;
+    const googleMailPass = process.env.GOOGLE_MAIL_PASS ? process.env.GOOGLE_MAIL_PASS.replace(/^["']|["']$/g, '') : undefined;
+    const emailTo = (process.env.EMAIL_TO || googleMailUser) ? (process.env.EMAIL_TO || googleMailUser).replace(/^["']|["']$/g, '') : undefined; // Send to Gmail user if not specified
 
     const logTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
-    const notificationText = `⚠️ Login Alert: User 'anu' has logged into the private chat space at ${logTime} (IST).`;
+    const notificationText = `⚠️ Login Alert: User '${userBName}' has logged into the private chat space at ${logTime} (IST).`;
 
     let telegramSent = false;
     let emailSent = false;
@@ -74,9 +74,9 @@ module.exports = async (req, res) => {
           subject: 'Amio Chat: Security login notification',
           html: `
             <div style="font-family: sans-serif; padding: 20px; color: #141413; background-color: #faf9f5; border: 1px solid #e6dfd8; border-radius: 8px;">
-              <h2 style="font-size: 20px; border-bottom: 1px solid #cc785c; padding-bottom: 8px; color: #cc785c;">Security Notification</h2>
-              <p>User <strong>anu</strong> has logged into the chat room.</p>
-              <p style="font-size: 13px; color: #6c6a64;">Time: ${logTime} (IST)</p>
+               <h2 style="font-size: 20px; border-bottom: 1px solid #cc785c; padding-bottom: 8px; color: #cc785c;">Security Notification</h2>
+               <p>User <strong>${userBName}</strong> has logged into the chat room.</p>
+               <p style="font-size: 13px; color: #6c6a64;">Time: ${logTime} (IST)</p>
             </div>
           `
         });
