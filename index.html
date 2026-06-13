@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Chat</title>
+  
+  <!-- SEO & Metadata -->
+  <meta name="description" content="A simple, secure private chat application.">
+  <meta name="theme-color" content="#faf9f5">
+  
+  <!-- Google Fonts: Cormorant Garamond for display headlines & Inter for UI/Body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="index.css">
+  
+  <!-- Firebase Import Map (ES Modules CDN) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  
+  <!-- ==================== PASSCODE SCREEN ==================== -->
+  <section id="passcode-screen" class="screen active">
+    <div class="passcode-card">
+      <div class="lock-header">
+        <div class="lock-icon">
+          <i class="ph-bold ph-key"></i>
+        </div>
+        <h1>Enter Passcode</h1>
+        <p>Please enter your passcode to access the chat</p>
+      </div>
+      
+      <!-- Password Dots -->
+      <div class="passcode-dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      
+      <!-- Hidden Input for keyboard typing -->
+      <input type="password" id="passcode-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" autocomplete="one-time-code" autofocus>
+      
+      <!-- Custom Touch Keypad -->
+      <div class="keypad">
+        <button class="key-btn" data-val="1">1</button>
+        <button class="key-btn" data-val="2">2</button>
+        <button class="key-btn" data-val="3">3</button>
+        <button class="key-btn" data-val="4">4</button>
+        <button class="key-btn" data-val="5">5</button>
+        <button class="key-btn" data-val="6">6</button>
+        <button class="key-btn" data-val="7">7</button>
+        <button class="key-btn" data-val="8">8</button>
+        <button class="key-btn" data-val="9">9</button>
+        <button class="key-btn utility-btn" id="key-clear"><i class="ph-bold ph-x"></i></button>
+        <button class="key-btn" data-val="0">0</button>
+        <button class="key-btn utility-btn" id="key-backspace"><i class="ph-bold ph-arrow-left"></i></button>
+      </div>
+
+      <div class="error-message" id="login-error">
+        <i class="ph-bold ph-warning-circle"></i> Invalid passcode. Access denied.
+      </div>
+    </div>
+  </section>
+  
+  <!-- ==================== CHAT SCREEN ==================== -->
+  <section id="chat-screen" class="screen">
+    <div class="chat-container">
+      
+      <!-- App Header -->
+      <header class="chat-header">
+        <div class="header-user-info">
+          <div class="avatar-icon" id="user-avatar">
+            <i class="ph-bold ph-user"></i>
+          </div>
+          <div class="header-titles">
+            <h2 id="room-title">Chat Room</h2>
+            <span class="connection-status connected">
+              <span class="status-dot"></span>
+              <span id="status-text">Connected</span>
+            </span>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <button class="icon-btn" id="btn-calendar" title="Jump to date">
+            <i class="ph-bold ph-calendar"></i>
+          </button>
+          <input type="date" id="date-picker" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;">
+          <button class="icon-btn" id="btn-scroll-bottom" title="Scroll to bottom">
+            <i class="ph-bold ph-arrow-down"></i>
+          </button>
+          <button class="icon-btn logout-btn" id="btn-logout" title="Lock chat">
+            <i class="ph-bold ph-lock"></i>
+          </button>
+        </div>
+      </header>
+      
+      <!-- Toast Alert Banner -->
+      <div class="toast-banner" id="toast-banner">
+        <i class="ph-bold ph-info"></i>
+        <span id="toast-text">No messages found on this date</span>
+      </div>
+      
+      <!-- Messages List -->
+      <main class="chat-messages-container" id="chat-messages">
+        <div class="loading-messages">
+          <div class="spinner"></div>
+          <p>Loading messages...</p>
+        </div>
+      </main>
+      
+      <!-- Input Form -->
+      <form class="chat-input-area" id="chat-form">
+        <div class="input-wrapper">
+          <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
+          <button type="submit" id="btn-send" class="send-btn">
+            Send
+          </button>
+        </div>
+      </form>
+      
+    </div>
+  </section>
+  
+  <script type="module" src="app.js"></script>
+</body>
+</html>
