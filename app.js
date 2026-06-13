@@ -51,16 +51,9 @@ async function init() {
     USER_CODES[firebaseConfig.userA.code] = { name: firebaseConfig.userA.name, initials: firebaseConfig.userA.initials };
     USER_CODES[firebaseConfig.userB.code] = { name: firebaseConfig.userB.name, initials: firebaseConfig.userB.initials };
     
-    // Check for existing session using dynamic usernames
-    const savedUser = localStorage.getItem('chatUser');
-    const userAName = firebaseConfig.userA.name;
-    const userBName = firebaseConfig.userB.name;
-    if (savedUser && (savedUser === userAName || savedUser === userBName)) {
-      loginAs(savedUser);
-    } else {
-      showScreen('passcode-screen');
-      setTimeout(() => passcodeInput.focus(), 400);
-    }
+    // Always show passcode screen first (do not persist/remember session)
+    showScreen('passcode-screen');
+    setTimeout(() => passcodeInput.focus(), 400);
     setupAuthEvents();
     setupChatEvents();
   } catch (err) {
@@ -82,7 +75,6 @@ function showScreen(screenId) {
 
 function loginAs(username) {
   currentUser = username;
-  localStorage.setItem('chatUser', currentUser);
   
   // Set avatar text based on initials dynamically
   let initials = 'U';
@@ -203,7 +195,6 @@ function setupAuthEvents() {
 
 function setupChatEvents() {
   btnLogout.addEventListener('click', () => {
-    localStorage.removeItem('chatUser');
     currentUser = null;
     chatMessages.innerHTML = `
       <div class="loading-messages">
