@@ -44,7 +44,12 @@ let toastTimeout = null;
 let isClientConnected = false;
 let otherUserPresence = { state: 'offline', last_changed: null };
 let otherUserTyping = false;
-let chatNotificationsEnabled = localStorage.getItem('amio_notifications') === 'true';
+let chatNotificationsEnabled = false;
+try {
+  chatNotificationsEnabled = localStorage.getItem('amio_notifications') === 'true';
+} catch (e) {
+  console.warn('localStorage is blocked or unavailable:', e);
+}
 
 async function init() {
   try {
@@ -306,7 +311,11 @@ function setupChatEvents() {
     if (!currentUser) return;
     
     chatNotificationsEnabled = !chatNotificationsEnabled;
-    localStorage.setItem('amio_notifications', chatNotificationsEnabled);
+    try {
+      localStorage.setItem('amio_notifications', chatNotificationsEnabled);
+    } catch (e) {
+      console.warn('localStorage write failed:', e);
+    }
     
     // Request permission if enabling
     if (chatNotificationsEnabled && typeof Notification !== 'undefined') {

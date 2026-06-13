@@ -34,6 +34,9 @@ const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = parsedUrl.pathname;
 
+  // Log incoming request
+  console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${pathname}`);
+
   // Vercel /api/config Emulation
   if (pathname === '/api/config') {
     res.status = (code) => {
