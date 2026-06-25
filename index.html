@@ -80,66 +80,259 @@
   
   <!-- ==================== CHAT SCREEN ==================== -->
   <section id="chat-screen" class="screen">
-    <div class="chat-container">
+    <div class="app-layout">
       
-      <!-- App Header -->
-      <header class="chat-header">
-        <div class="header-user-info">
-          <div class="avatar-icon" id="user-avatar">
-            <i class="ph-bold ph-user"></i>
+      <!-- ==================== SIDEBAR ==================== -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="brand">
+            <span class="brand-logo"><i class="ph-bold ph-chats"></i></span>
+            <h3>Amio</h3>
           </div>
-          <div class="header-titles">
-            <h2 id="room-title">Chat Room</h2>
-            <span class="connection-status connected">
-              <span class="status-dot"></span>
-              <span id="status-text">Connected</span>
-            </span>
+          <button class="icon-btn" id="btn-close-sidebar" title="Close menu">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+        
+        <div class="sidebar-content">
+          <!-- Rooms Section -->
+          <div class="sidebar-section">
+            <div class="section-header">
+              <span>Rooms</span>
+              <button class="icon-btn admin-only" id="btn-open-create-room" title="Create Room" style="display: none;">
+                <i class="ph-bold ph-plus"></i>
+              </button>
+            </div>
+            <div class="section-list" id="rooms-list">
+              <div class="loading-sidebar"><div class="spinner-small"></div></div>
+            </div>
+          </div>
+          
+          <!-- Migration Banner (Admin Only) -->
+          <div class="sidebar-section admin-only" id="migration-section" style="display: none;">
+            <div class="migration-banner" id="btn-open-migrate">
+              <i class="ph-bold ph-database"></i>
+              <div class="migration-info">
+                <h4>Legacy Chat Found</h4>
+                <p>Click to convert old data</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Users Section (Admin Only) -->
+          <div class="sidebar-section admin-only" id="users-section" style="display: none;">
+            <div class="section-header">
+              <span>Manage Users</span>
+              <button class="icon-btn" id="btn-open-add-user" title="Add User">
+                <i class="ph-bold ph-user-plus"></i>
+              </button>
+            </div>
+            <div class="section-list" id="users-list">
+              <!-- Dynamically populated -->
+            </div>
           </div>
         </div>
         
-        <div class="header-actions">
-          <button class="icon-btn" id="btn-calendar" title="Jump to date">
-            <i class="ph-bold ph-calendar"></i>
-          </button>
-          <input type="date" id="date-picker" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;">
-          <button class="icon-btn" id="btn-notif-toggle" title="Toggle security alerts">
-            <i class="ph-bold ph-bell"></i>
-          </button>
-          <button class="icon-btn" id="btn-scroll-bottom" title="Scroll to bottom">
-            <i class="ph-bold ph-arrow-down"></i>
-          </button>
-          <button class="icon-btn logout-btn" id="btn-logout" title="Lock chat">
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+          <div class="user-profile">
+            <div class="avatar-icon" id="my-avatar">A</div>
+            <div class="profile-info">
+              <span class="profile-name" id="my-name">User</span>
+              <span class="profile-role" id="my-role">Role</span>
+            </div>
+          </div>
+          <button class="icon-btn logout-btn" id="btn-sidebar-logout" title="Lock chat">
             <i class="ph-bold ph-lock"></i>
           </button>
         </div>
-      </header>
+      </aside>
       
-      <!-- Toast Alert Banner -->
-      <div class="toast-banner" id="toast-banner">
-        <i class="ph-bold ph-info"></i>
-        <span id="toast-text">No messages found on this date</span>
+      <!-- ==================== MAIN CHAT AREA ==================== -->
+      <div class="chat-container">
+        
+        <!-- App Header -->
+        <header class="chat-header">
+          <div class="header-user-info">
+            <button class="icon-btn" id="btn-menu" title="Open menu">
+              <i class="ph-bold ph-list"></i>
+            </button>
+            <div class="avatar-icon" id="user-avatar">
+              <i class="ph-bold ph-user"></i>
+            </div>
+            <div class="header-titles">
+              <h2 id="room-title">Select a Room</h2>
+              <span class="connection-status connected">
+                <span class="status-dot"></span>
+                <span id="status-text">Connected</span>
+              </span>
+            </div>
+          </div>
+          
+          <div class="header-actions">
+            <button class="icon-btn admin-only" id="btn-room-settings" title="Room Settings" style="display: none;">
+              <i class="ph-bold ph-gear"></i>
+            </button>
+            <button class="icon-btn" id="btn-calendar" title="Jump to date" style="display: none;">
+              <i class="ph-bold ph-calendar"></i>
+            </button>
+            <input type="date" id="date-picker" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;">
+            <button class="icon-btn" id="btn-notif-toggle" title="Toggle security alerts">
+              <i class="ph-bold ph-bell"></i>
+            </button>
+            <button class="icon-btn" id="btn-scroll-bottom" title="Scroll to bottom" style="display: none;">
+              <i class="ph-bold ph-arrow-down"></i>
+            </button>
+          </div>
+        </header>
+        
+        <!-- Toast Alert Banner -->
+        <div class="toast-banner" id="toast-banner">
+          <i class="ph-bold ph-info"></i>
+          <span id="toast-text">No messages found on this date</span>
+        </div>
+        
+        <!-- Messages List -->
+        <main class="chat-messages-container" id="chat-messages">
+          <div class="select-room-fallback">
+            <i class="ph-bold ph-chats-teardrop"></i>
+            <h3>No Active Chat</h3>
+            <p>Choose a room from the sidebar menu to start exchanging messages.</p>
+          </div>
+        </main>
+        
+        <!-- Input Form -->
+        <form class="chat-input-area" id="chat-form" style="display: none;">
+          <div class="input-wrapper">
+            <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
+            <button type="submit" id="btn-send" class="send-btn">
+              Send
+            </button>
+          </div>
+        </form>
+        
       </div>
       
-      <!-- Messages List -->
-      <main class="chat-messages-container" id="chat-messages">
-        <div class="loading-messages">
-          <div class="spinner"></div>
-          <p>Loading messages...</p>
-        </div>
-      </main>
-      
-      <!-- Input Form -->
-      <form class="chat-input-area" id="chat-form">
-        <div class="input-wrapper">
-          <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
-          <button type="submit" id="btn-send" class="send-btn">
-            Send
-          </button>
-        </div>
-      </form>
-      
+      <!-- Overlay for mobile sidebar -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
     </div>
   </section>
+
+  <!-- ==================== MODALS ==================== -->
+  
+  <!-- Add User Modal -->
+  <div class="modal" id="modal-add-user">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New User</h3>
+        <button class="close-modal-btn">&times;</button>
+      </div>
+      <form id="form-add-user">
+        <div class="form-group">
+          <label for="new-user-name">Name</label>
+          <input type="text" id="new-user-name" required placeholder="e.g. Robin">
+        </div>
+        <div class="form-group">
+          <label for="new-user-passcode">Passcode (6 digits)</label>
+          <input type="password" id="new-user-passcode" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" placeholder="e.g. 987654">
+        </div>
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="new-user-admin">
+          <label for="new-user-admin">Grant Admin Privileges</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancel-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Room Modal -->
+  <div class="modal" id="modal-create-room">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create New Room</h3>
+        <button class="close-modal-btn">&times;</button>
+      </div>
+      <form id="form-create-room">
+        <div class="form-group">
+          <label for="new-room-name">Room Name</label>
+          <input type="text" id="new-room-name" required placeholder="e.g. Group Chat">
+        </div>
+        <div class="form-group">
+          <label>Select Members (Choose 2 or 3)</label>
+          <div class="members-selection-list" id="create-room-members">
+            <!-- Dynamically populated checkboxes -->
+          </div>
+          <span class="error-text" id="create-room-members-error" style="display: none;">Please select exactly 2 or 3 members.</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancel-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Migrate Old Data Modal -->
+  <div class="modal" id="modal-migrate-data">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Convert Legacy Chat Data</h3>
+        <button class="close-modal-btn">&times;</button>
+      </div>
+      <form id="form-migrate-data">
+        <p class="modal-desc">We found legacy messages at the database root. Convert them to a custom room to secure and back them up, then empty the root database.</p>
+        <div class="form-group">
+          <label for="migrate-room-name">Room Name</label>
+          <input type="text" id="migrate-room-name" required value="Archived Chat" placeholder="e.g. Archive">
+        </div>
+        <div class="form-group">
+          <label>Select Members (Choose 2 or 3)</label>
+          <div class="members-selection-list" id="migrate-room-members">
+            <!-- Dynamically populated checkboxes -->
+          </div>
+          <span class="error-text" id="migrate-room-members-error" style="display: none;">Please select exactly 2 or 3 members.</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancel-modal-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Convert &amp; Backup</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Room Settings Modal -->
+  <div class="modal" id="modal-room-settings">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Room Settings: <span id="settings-room-name">Room</span></h3>
+        <button class="close-modal-btn">&times;</button>
+      </div>
+      <form id="form-room-settings">
+        <div class="form-group">
+          <label for="settings-room-name-input">Room Name</label>
+          <input type="text" id="settings-room-name-input" required placeholder="e.g. Group Chat">
+        </div>
+        <div class="form-group">
+          <label>Manage Member Access (Choose 2 or 3)</label>
+          <div class="members-selection-list" id="room-settings-members">
+            <!-- Dynamically populated checkboxes -->
+          </div>
+          <span class="error-text" id="room-settings-members-error" style="display: none;">Please select exactly 2 or 3 members.</span>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between; align-items: center; margin-top: 16px;">
+          <button type="button" class="btn btn-secondary" id="btn-delete-room" style="color: var(--colors-error); border-color: var(--colors-hairline);">
+            <i class="ph-bold ph-trash" style="margin-right: 6px;"></i> Delete Room
+          </button>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary cancel-modal-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Access</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
   
   <script type="module" src="app.js"></script>
 </body>
