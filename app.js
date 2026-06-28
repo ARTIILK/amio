@@ -760,7 +760,12 @@ function updateHeaderStatus(typingUsers = []) {
   }
   
   const otherMembers = Object.keys(activeRoomMembers).filter(m => !isSenderCurrentUser(m, currentUser));
-  const onlineMembers = otherMembers.filter(m => membersPresence[m] && membersPresence[m].state === 'online');
+  const onlineMembers = otherMembers.filter(m => {
+    const p = membersPresence[m];
+    if (!p) return false;
+    if (typeof p === 'string') return p === 'online';
+    return p.state === 'online';
+  });
   
   if (onlineMembers.length > 0) {
     statusText.textContent = `Active: ${onlineMembers.join(', ')}`;
@@ -769,15 +774,23 @@ function updateHeaderStatus(typingUsers = []) {
     if (otherMembers.length === 1) {
       const otherUser = otherMembers[0];
       const presence = membersPresence[otherUser];
-      if (presence && presence.last_changed) {
-        statusText.textContent = `Last seen ${formatLastSeen(presence.last_changed)}`;
+      const status = typeof presence === 'string' ? presence : (presence?.state || 'offline');
+      const lastChanged = typeof presence === 'object' ? presence?.last_changed : null;
+      
+      if (status === 'online') {
+        statusText.textContent = "Online";
+        connectionStatus.className = "connection-status connected";
+      } else if (lastChanged) {
+        statusText.textContent = `Last seen ${formatLastSeen(lastChanged)}`;
+        connectionStatus.className = "connection-status offline";
       } else {
         statusText.textContent = "Offline";
+        connectionStatus.className = "connection-status offline";
       }
     } else {
       statusText.textContent = `${otherMembers.length + 1} members`;
+      connectionStatus.className = "connection-status offline";
     }
-    connectionStatus.className = "connection-status offline";
   }
 }
 
