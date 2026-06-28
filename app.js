@@ -98,6 +98,8 @@ async function init() {
       // Seed default admin and user
       updates[`users/user_1`] = { userId: 'user_1', name: firebaseConfig.userA.name, passcode: firebaseConfig.userA.code, isAdmin: true };
       updates[`users/user_2`] = { userId: 'user_2', name: firebaseConfig.userB.name, passcode: firebaseConfig.userB.code, isAdmin: false };
+      updates[`passcodes/${firebaseConfig.userA.code}`] = { userId: 'user_1', name: firebaseConfig.userA.name, isAdmin: true };
+      updates[`passcodes/${firebaseConfig.userB.code}`] = { userId: 'user_2', name: firebaseConfig.userB.name, isAdmin: false };
       
       // Seed default "General Chat" room
       const defaultRoomId = 'general';
@@ -214,13 +216,11 @@ function updateDots(val) {
 // Verify passcode against Database Users Registry
 async function verifyPasscode(code) {
   try {
-    const usersRef = ref(db, 'users');
-    const passcodeQuery = query(usersRef, orderByChild('passcode'), equalTo(code));
-    const querySnap = await get(passcodeQuery);
-    if (querySnap.exists()) {
-      const matchKey = Object.keys(querySnap.val())[0];
-      const userObj = querySnap.val()[matchKey];
-      currentUserUserId = matchKey;
+    const passcodeRef = ref(db, `passcodes/${code}`);
+    const snap = await get(passcodeRef);
+    if (snap.exists()) {
+      const userObj = snap.val();
+      currentUserUserId = userObj.userId;
       currentUserPasscode = code;
       resetPasscode(false);
       loginAs(userObj.name, userObj.isAdmin);
@@ -449,7 +449,14 @@ function renderUsersList() {
           alert("Passcode must be exactly 6 digits.");
           return;
         }
-        await update(ref(db, `users/${userId}`), { passcode: newCode });
+        const oldCode = user.passcode;
+        const updates = {};
+        updates[`users/${userId}/passcode`] = newCode;
+        if (oldCode) {
+          updates[`passcodes/${oldCode}`] = null;
+        }
+        updates[`passcodes/${newCode}`] = { userId, name: user.name, isAdmin: user.isAdmin };
+        await update(ref(db), updates);
         showToast(`Passcode updated for "${user.name}".`);
       }
     });
@@ -893,7 +900,10 @@ function setupChatEvents() {
 async function createUser(name, passcode, isAdmin) {
   const newUserRef = push(ref(db, 'users'));
   const userId = newUserRef.key;
-  await set(newUserRef, { userId, name, passcode, isAdmin });
+  const updates = {};
+  updates[`users/${userId}`] = { userId, name, passcode, isAdmin };
+  updates[`passcodes/${passcode}`] = { userId, name, isAdmin };
+  await update(ref(db), updates);
   showToast(`User "${name}" has been registered.`);
 }
 
@@ -902,8 +912,13 @@ async function deleteUser(userId) {
     alert("You cannot delete your own account.");
     return;
   }
-  
-  await set(ref(db, `users/${userId}`), null);
+  const user = allUsers[userId];
+  const updates = {};
+  updates[`users/${userId}`] = null;
+  if (user && user.passcode) {
+    updates[`passcodes/${user.passcode}`] = null;
+  }
+  await update(ref(db), updates);
   showToast("User successfully removed.");
 }
 
