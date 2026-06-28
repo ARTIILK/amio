@@ -1,0 +1,9 @@
+{
+  "name": "amio-chat",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.9",
+    "googleapis": "^129.0.0"
+  }
+}
